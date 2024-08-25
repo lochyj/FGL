@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Force Graph Layout Engine</title>
+        <style>
+            * {
+                box-sizing: border-box;
+                padding: 0px;
+                margin: 0px;
+            }
+
+            body,
+            html {
+                height: 100vh;
+                width: 100vw;
+                background-color: #0a0a0a;
+            }
+
+            #container {
+                height: 100vh;
+                width: 100vw;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container"></div>
+        <script type="module">
+            import FGLApp from "/src/index.mjs";
+
+            const graph = new FGLApp({
+                container: "container",
+            });
+
+            graph.add_node(0, "0");
+            graph.add_node(1, "2");
+            graph.add_node(2, "3");
+            graph.add_node(3, "4");
+
+            graph.add_edge(0, 1, true, "Kevin St");
+            graph.add_edge(0, 2, true, "Haig Av");
+            graph.add_edge(0, 3, true, "John Av");
+
+            graph.remove_edge(0, 1);
+            graph.remove_node(1);
+        </script>
+    </body>
+</html>
