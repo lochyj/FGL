@@ -7,7 +7,7 @@ import * as PIXI from "/libs/pixi.min.mjs";
 // Utility / Helper imports
 import Force from "/src/force/force.mjs";
 import Zoom from "/src/zoom.mjs";
-import { randPos, randomInt } from "/src/utilities.mjs";
+import { randPos, load_defaults, nothing } from "/src/utilities.mjs";
 import parse_settings from "/src/settings.mjs";
 
 // Data imports
@@ -126,6 +126,25 @@ export default class FGLApp {
   // -------------------------------------
   // Handlers for user -> node interaction
   // -------------------------------------
+  //
+
+  static node_clicked() {
+    const node = nodes.data[nodes.find(this.id)];
+
+    const functions = node.functions;
+
+    for (var i = 0; i < functions.length; i++) {
+      if (!(functions[i] instanceof Function)) continue;
+      const value = functions[i](this);
+
+      // If the function doesnt want anything else to happen, break.
+      if (value === false) {
+        break;
+      }
+
+      // Else, continue executing all of the handlers.
+    }
+  }
 
   static onDragMove(event) {
     if (!FGLApp.dragTarget) {
@@ -150,9 +169,9 @@ export default class FGLApp {
     FGLApp.update();
   }
 
-  static onDragStart() {
+  static onDragStart(context) {
     // Set the drag target to the node being dragged.
-    FGLApp.dragTarget = this;
+    FGLApp.dragTarget = context;
 
     // Set the drag handler.
     FGLApp.app.stage.on("pointermove", FGLApp.onDragMove);
@@ -162,8 +181,8 @@ export default class FGLApp {
     // relative to the cursor, meaning the node doesnt center itself
     // suddenly to the cursor and the position on the node that
     // was dragged stays centered on the cursor itself.
-    FGLApp.Drag_Offset_X = FGLApp.container.toLocal(event).x - this.x;
-    FGLApp.Drag_Offset_Y = FGLApp.container.toLocal(event).y - this.y;
+    FGLApp.Drag_Offset_X = FGLApp.container.toLocal(event).x - context.x;
+    FGLApp.Drag_Offset_Y = FGLApp.container.toLocal(event).y - context.y;
 
     // Disable panning as we dont want to move the screen at the same
     // time as we are moving the node.
@@ -241,6 +260,13 @@ export default class FGLApp {
       const node = nodes.data[i];
       const child = node.child;
 
+      if (node.locked) {
+        node.dx = 0;
+        node.dy = 0;
+
+        continue;
+      }
+
       if (FGLApp.dragTarget != null && i == nodes.find(FGLApp.dragTarget.id)) {
         node.dx = 0;
         node.dy = 0;
@@ -303,30 +329,41 @@ export default class FGLApp {
     return child;
   }
 
-  add_node(id, label = "", radius = 20, color = 0x448ee4, mass = 10) {
-    const position = randPos();
-    const x = position[0];
-    const y = position[1];
+  add_node(id, config) {
+    var defaults = {
+      label: "",
+      radius: 20,
+      color: 0x448ee4,
+      mass: 10,
+      click_handler: FGLApp.onDragStart,
+      locked: false, // Determines if the node should be locked in place
+      position: randPos(), // Sets the position of the node. [x, y].
+    };
+
+    defaults = load_defaults(config, defaults);
+
+    const x = defaults.position[0];
+    const y = defaults.position[1];
 
     const graphics = new Graphics();
-    graphics.beginFill(color);
+    graphics.beginFill(defaults.color);
 
-    graphics.drawCircle(0, 0, radius);
+    graphics.drawCircle(0, 0, defaults.radius);
     graphics.endFill();
 
     graphics.x = x;
     graphics.y = y;
 
-    graphics.eventMode = "static"; // Changed interactive to eventMode
-    graphics.on("pointerdown", FGLApp.onDragStart, graphics);
+    graphics.eventMode = "static";
+    graphics.on("pointerdown", FGLApp.node_clicked, graphics);
 
     graphics.id = id;
 
     const child = FGLApp.nodes_container.addChild(graphics);
-    let labelChild;
+    let labelChild = null;
 
-    if (label != "") {
-      labelChild = FGLApp.add_label(label, 0x3f3f3f);
+    if (defaults.label != "") {
+      labelChild = FGLApp.add_label(defaults.label, 0x3f3f3f);
     }
 
     // Add the data for the node to the nodes object.
@@ -334,11 +371,13 @@ export default class FGLApp {
       id: id,
       x: x,
       y: y,
-      radius: radius,
-      color: color,
-      label: label,
-      mass: mass,
+      radius: defaults.radius,
+      color: defaults.color,
+      label: defaults.label,
+      mass: defaults.mass,
       child: child,
+      functions: [defaults.click_handler, FGLApp.onDragStart],
+      locked: defaults.locked,
       dx: 0,
       dy: 0,
       labelChild: labelChild,
@@ -347,9 +386,18 @@ export default class FGLApp {
     });
   }
 
-  add_edge(node_a, node_b, directed, label = "", color = 0x606060, width = 15) {
+  add_edge(node_a, node_b, config) {
+    var defaults = {
+      directed: false,
+      label: "",
+      color: 0x606060,
+      width: 15,
+    };
+
+    defaults = load_defaults(config, defaults);
+
     const line = new Graphics();
-    line.beginFill(color);
+    line.beginFill(defaults.color);
     line.drawRect(0, 0, 1, 1);
     line.endFill();
 
@@ -372,13 +420,13 @@ export default class FGLApp {
     line.x = x2;
     line.y = y2;
     line.height = distance;
-    line.width = width;
+    line.width = defaults.width;
     line.angle = angle;
 
     const child = FGLApp.edges_container.addChild(line);
 
     var arrow_id = null;
-    if (directed) {
+    if (defaults.directed) {
       const arrow = new Graphics();
       arrow.beginFill(0x7f7f7f);
       arrow.moveTo(0, 10);
@@ -399,16 +447,17 @@ export default class FGLApp {
     b.incoming.push(edge_id);
 
     let labelChild;
-    if (label != "") {
-      labelChild = FGLApp.add_label(label, 0x7f7f7f);
+    if (defaults.label != "") {
+      labelChild = FGLApp.add_label(defaults.label, 0x7f7f7f);
     }
 
     edges.data.push({
       id: edge_id,
       node_a: node_a,
       node_b: node_b,
-      width: width,
-      color: color,
+      width: defaults.width,
+      color: defaults.color,
+      directed: defaults.directed,
       child: child,
       arrow: arrow_id,
       labelChild: labelChild,
@@ -501,24 +550,30 @@ export default class FGLApp {
     }
   }
 
+  edit_node(id) {
+    // TODO
+  }
+
+  edit_edge(node_a, node_b) {
+    // TODO
+  }
+
   // --------------
   // Helper methods
   // --------------
 
   // Generates a random graph with the number of specified nodes.
   random(num_nodes, labeled = false, directed = false) {
-    // Add all nodes.
     for (let i = 0; i < num_nodes; i++) {
       if (labeled) this.add_node(i, `${i}`);
       else this.add_node(i);
     }
 
-    // Randomly add edges between nodes
     const edges = new Set();
 
     for (let i = 0; i < num_nodes; i++) {
       for (let j = i + 1; j < num_nodes; j++) {
-        if (Math.random() < 0.5) {
+        if (Math.random() < 0.15) {
           if (!edges.has(`${i}-${j}`) && !edges.has(`${j}-${i}`)) {
             this.add_edge(i, j, directed);
             edges.add(`${i}-${j}`);

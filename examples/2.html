@@ -15,6 +15,7 @@
             html {
                 height: 100vh;
                 width: 100vw;
+                background-color: #0a0a0a;
             }
 
             #container {
@@ -24,20 +25,17 @@
         </style>
     </head>
     <body>
-        <div>
-            <a href="/examples/2.html">2 Graph</a><br />
-            <a href="/examples/circle.html">Circle Graph</a><br />
-            <a href="/examples/cube.html">Cube Graph</a><br />
-            <a href="/examples/triangle.html">Triangle Graph</a><br />
-            <a href="/testing.html">Testing Graph</a><br />
-        </div>
-        <!-- TODO: Make an interactive graph where you can click on the nodes and it takes you to the example page -->
-        <!-- <script type="module">
-            import FGLApp from "/src/index.mjs";
+        <div id="container"></div>
+        <script type="module">
+            import FGLApp from "../src/index.mjs";
 
             const graph = new FGLApp({
                 container: "container",
             });
-        </script> -->
+
+            graph.add_node(0);
+            graph.add_node(1);
+            graph.add_edge(0, 1);
+        </script>
     </body>
 </html>

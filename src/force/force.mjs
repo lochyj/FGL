@@ -62,8 +62,10 @@ export default class Force {
 
         if (distance === 0) return;
 
-        const forceMagnitude =
+        var forceMagnitude =
           (k * Math.abs(0.01 * 0.01)) / (distance * distance);
+
+        if (forceMagnitude >= 500) forceMagnitude = 499;
 
         const forceX = (dx / distance) * forceMagnitude;
         const forceY = (dy / distance) * forceMagnitude;

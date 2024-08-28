@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Force Graph Layout Engine</title>
+        <style>
+            * {
+                box-sizing: border-box;
+                padding: 0px;
+                margin: 0px;
+            }
+
+            body,
+            html {
+                height: 100vh;
+                width: 100vw;
+                background-color: #0a0a0a;
+            }
+
+            #container {
+                height: 100vh;
+                width: 100vw;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container"></div>
+        <script type="module">
+            import FGLApp from "../src/index.mjs";
+
+            const graph = new FGLApp({
+                container: "container",
+            });
+
+            const LEVELS = 4,
+                TOTAL_NODES = (LEVELS * (LEVELS + 1)) / 2;
+
+            for (var i = 0; i < TOTAL_NODES; i++) {
+                graph.add_node(i, { label: `${i}` });
+            }
+
+            for (var i = 0; i < TOTAL_NODES - 1; i++) {
+                graph.add_edge(i, i + 1, { directed: true });
+            }
+
+            graph.add_edge(0, 2, { directed: true });
+
+            graph.add_edge(2, 4, { directed: true });
+
+            graph.add_edge(1, 4, { directed: true });
+
+            graph.add_edge(1, 5, { directed: true });
+
+            graph.add_edge(5, 7, { directed: true });
+
+            graph.add_edge(1, 7, { directed: true });
+
+            graph.add_edge(1, 8, { directed: true });
+
+            graph.add_edge(0, 8, { directed: true });
+
+            graph.add_edge(0, 9, { directed: true });
+        </script>
+    </body>
+</html>
