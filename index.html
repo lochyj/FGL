@@ -17,6 +17,11 @@
                 width: 100vw;
             }
 
+            html {
+                padding: 0px;
+                margin: 0px;
+            }
+
             #container {
                 height: 100vh;
                 width: 100vw;
@@ -24,20 +29,71 @@
         </style>
     </head>
     <body>
-        <div>
-            <a href="/examples/2.html">2 Graph</a><br />
-            <a href="/examples/circle.html">Circle Graph</a><br />
-            <a href="/examples/cube.html">Cube Graph</a><br />
-            <a href="/examples/triangle.html">Triangle Graph</a><br />
-            <a href="/testing.html">Testing Graph</a><br />
-        </div>
-        <!-- TODO: Make an interactive graph where you can click on the nodes and it takes you to the example page -->
-        <!-- <script type="module">
+        <div id="container"></div>
+        <script type="module">
             import FGLApp from "/src/index.mjs";
 
             const graph = new FGLApp({
                 container: "container",
             });
-        </script> -->
+
+            const locate = (location) => {
+                window.location = location;
+                return false;
+            };
+
+            var showing_examples = false;
+            var examples = [
+                ["2 Graph", "/examples/2.html"],
+                ["Circle Graph", "/examples/circle.html"],
+                ["Cube Graph", "/examples/cube.html"],
+                ["Triangle Graph", "/examples/triangle.html"],
+                ["Testing Graph", "/testing.html"],
+            ];
+
+            function show_examples() {
+                if (showing_examples) {
+                    for (var i = 0; i < examples.length; i++) {
+                        graph.remove_node(i);
+                    }
+
+                    showing_examples = !showing_examples;
+
+                    return;
+                }
+
+                for (var i = 0; i < examples.length; i++) {
+                    graph.add_node(i, {
+                        label: examples[i][0],
+                        click_handler: locate,
+                        data: examples[i][1],
+                    });
+
+                    graph.add_edge(11, i, { directed: true });
+                }
+
+                showing_examples = !showing_examples;
+
+                return false;
+            }
+
+            graph.add_node(10, {
+                label: "Github",
+                click_handler: locate,
+                data: "https://github.com/lochyj/FGL",
+            });
+            graph.add_node(11, {
+                label: "Examples",
+                click_handler: show_examples,
+            });
+            graph.add_node(12, {
+                label: "Docs",
+                click_handler: locate,
+                data: "https://github.com/lochyj/FGL/wiki",
+            });
+
+            graph.add_edge(10, 11);
+            graph.add_edge(11, 12);
+        </script>
     </body>
 </html>

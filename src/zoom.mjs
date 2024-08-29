@@ -5,6 +5,11 @@
 
 // TODO: Refactor to make less convoluted.
 
+// TODO: Fix issue when the user navigates
+// to another page using a click handler and
+// then returns again, the drag event isnt
+// de-registerd or something and its very annoying.
+
 "use strict";
 export default class Zoom {
   // Global vars to cache event state

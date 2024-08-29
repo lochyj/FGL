@@ -135,15 +135,18 @@ export default class FGLApp {
 
     for (var i = 0; i < functions.length; i++) {
       if (!(functions[i] instanceof Function)) continue;
-      const value = functions[i](this);
+      const value = functions[i](node.data);
 
-      // If the function doesnt want anything else to happen, break.
+      // If the function doesnt want anything else to happen, return.
       if (value === false) {
-        break;
+        return;
       }
 
       // Else, continue executing all of the handlers.
     }
+
+    // Now call the drag handler
+    FGLApp.onDragStart(this);
   }
 
   static onDragMove(event) {
@@ -335,9 +338,10 @@ export default class FGLApp {
       radius: 20,
       color: 0x448ee4,
       mass: 10,
-      click_handler: FGLApp.onDragStart,
+      click_handler: nothing,
       locked: false, // Determines if the node should be locked in place
       position: randPos(), // Sets the position of the node. [x, y].
+      data: undefined,
     };
 
     defaults = load_defaults(config, defaults);
@@ -376,8 +380,9 @@ export default class FGLApp {
       label: defaults.label,
       mass: defaults.mass,
       child: child,
-      functions: [defaults.click_handler, FGLApp.onDragStart],
+      functions: [defaults.click_handler], // TODO: decide if this should be a list.
       locked: defaults.locked,
+      data: defaults.data,
       dx: 0,
       dy: 0,
       labelChild: labelChild,
@@ -510,8 +515,14 @@ export default class FGLApp {
 
     // Remove all dependent objects from existence.
     edge.child.parent.removeChild(edge.child);
-    edge.arrow.parent.removeChild(edge.arrow);
-    edge.labelChild.parent.removeChild(edge.labelChild);
+
+    if (edge.arrow) {
+      edge.arrow.parent.removeChild(edge.arrow);
+    }
+
+    if (edge.labelChild) {
+      edge.labelChild.parent.removeChild(edge.labelChild);
+    }
 
     // Now remove the edge from the edges object.
     edges.data.splice(edges.find(id), 1);
@@ -533,7 +544,9 @@ export default class FGLApp {
     node.child.parent.removeChild(node.child);
 
     // And remove the label from the canvas.
-    node.labelChild.parent.removeChild(node.labelChild);
+    if (node.labelChild) {
+      node.labelChild.parent.removeChild(node.labelChild);
+    }
 
     // Now remove the node from the nodes object.
     nodes.data.splice(nodes.find(id), 1);
