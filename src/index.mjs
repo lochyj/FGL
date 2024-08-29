@@ -1,14 +1,14 @@
 "use strict";
 
 // Pixi.js imports
-import { Application, Container, Graphics } from "./libs/pixi.min.mjs";
-import * as PIXI from "./libs/pixi.min.mjs";
+import { Application, Container, Graphics } from "/libs/pixi.min.mjs";
+import * as PIXI from "/libs/pixi.min.mjs";
 
 // Utility / Helper imports
-import Force from "./src/force/force.mjs";
-import Zoom from "./src/zoom.mjs";
-import { randPos, load_defaults, nothing } from "./src/utilities.mjs";
-import parse_settings from "./src/settings.mjs";
+import Force from "/src/force/force.mjs";
+import Zoom from "/src/zoom.mjs";
+import { randPos, load_defaults, nothing } from "/src/utilities.mjs";
+import parse_settings from "/src/settings.mjs";
 
 // Data imports
 import nodes from "/src/data/nodes.mjs";

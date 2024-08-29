@@ -27,15 +27,23 @@
     <body>
         <div id="container"></div>
         <script type="module">
-            import FGLApp from "../src/index.mjs";
+            import FGLApp from "../FGL.mjs";
 
             const graph = new FGLApp({
                 container: "container",
             });
 
-            graph.add_node(0);
-            graph.add_node(1);
-            graph.add_edge(0, 1);
+            const nodes = 10;
+
+            // Create nodes
+            for (var i = 0; i < nodes; i++) {
+                graph.add_node(i, { label: `${i}` });
+            }
+
+            // Connect nodes
+            for (var i = 0; i < nodes; i++) {
+                graph.add_edge(i, (i + 1) % nodes, { directed: true });
+            }
         </script>
     </body>
 </html>
