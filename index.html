@@ -31,7 +31,7 @@
     <body>
         <div id="container"></div>
         <script type="module">
-            import FGLApp from "/src/index.mjs";
+            import FGLApp from "./src/index.mjs";
 
             const graph = new FGLApp({
                 container: "container",
@@ -44,11 +44,11 @@
 
             var showing_examples = false;
             var examples = [
-                ["2 Graph", "/examples/2.html"],
-                ["Circle Graph", "/examples/circle.html"],
-                ["Cube Graph", "/examples/cube.html"],
-                ["Triangle Graph", "/examples/triangle.html"],
-                ["Testing Graph", "/testing.html"],
+                ["2 Graph", "./examples/2.html"],
+                ["Circle Graph", "./examples/circle.html"],
+                ["Cube Graph", "./examples/cube.html"],
+                ["Triangle Graph", "./examples/triangle.html"],
+                ["Testing Graph", "./testing.html"],
             ];
 
             function show_examples() {
