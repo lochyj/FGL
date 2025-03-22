@@ -33,15 +33,7 @@
                 container: "container",
             });
 
-            function test() {
-                console.log("Hello!");
-
-                return false;
-            }
-
-            graph.add_node(0, { click_handler: test, locked: true });
-            graph.add_node(1);
-            graph.add_edge(0, 1);
+            graph.random(10, false, true);
         </script>
     </body>
 </html>

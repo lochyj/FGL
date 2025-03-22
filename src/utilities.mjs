@@ -22,5 +22,5 @@ export function load_defaults(settings, defaults) {
 // Well each node has a click handler. If the user
 // doesnt assign a handler, we simply assign it this.
 export function nothing() {
-  return;
+  return true;
 }

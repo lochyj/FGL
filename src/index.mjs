@@ -126,7 +126,6 @@ export default class FGLApp {
   // -------------------------------------
   // Handlers for user -> node interaction
   // -------------------------------------
-  //
 
   static node_clicked() {
     const node = nodes.data[nodes.find(this.id)];
@@ -138,7 +137,7 @@ export default class FGLApp {
       const value = functions[i](node.data);
 
       // If the function doesnt want anything else to happen, return.
-      if (value === false) {
+      if (!value) {
         return;
       }
 
@@ -167,6 +166,16 @@ export default class FGLApp {
     // was dragged stays centered on the cursor itself.
     node.x = FGLApp.container.toLocal(event).x - FGLApp.Drag_Offset_X;
     node.y = FGLApp.container.toLocal(event).y - FGLApp.Drag_Offset_Y;
+
+    // Double check that the left mouse button is indeed pressed.
+    // This may trigger once the user navigates back to the page
+    // after pressing a node and being taken to another page and
+    // the node will continue being dragged when the left mouse
+    // button isnt pressed.
+    if (!((window.document.buttons & 1) === 1)) {
+      FGLApp.onDragEnd();
+      return;
+    }
 
     // Update the positions of everything on the screen for continutity.
     FGLApp.update();
@@ -552,6 +561,7 @@ export default class FGLApp {
     nodes.data.splice(nodes.find(id), 1);
   }
 
+  // TODO: Currently we don't handle double edges. Fix that.
   remove_edge(node_a, node_b) {
     for (var i = 0; i < edges.data.length; i++) {
       const edge = edges.data[i];
@@ -576,9 +586,10 @@ export default class FGLApp {
   // --------------
 
   // Generates a random graph with the number of specified nodes.
+  // Its kind of bad so it will definately change in the future.
   random(num_nodes, labeled = false, directed = false) {
     for (let i = 0; i < num_nodes; i++) {
-      if (labeled) this.add_node(i, `${i}`);
+      if (labeled) this.add_node(i, { label: `${i}` });
       else this.add_node(i);
     }
 
@@ -586,9 +597,9 @@ export default class FGLApp {
 
     for (let i = 0; i < num_nodes; i++) {
       for (let j = i + 1; j < num_nodes; j++) {
-        if (Math.random() < 0.15) {
+        if (Math.random() < 0.3) {
           if (!edges.has(`${i}-${j}`) && !edges.has(`${j}-${i}`)) {
-            this.add_edge(i, j, directed);
+            this.add_edge(i, j, { directed: directed });
             edges.add(`${i}-${j}`);
           }
         }
