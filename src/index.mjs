@@ -167,16 +167,6 @@ export default class FGLApp {
     node.x = FGLApp.container.toLocal(event).x - FGLApp.Drag_Offset_X;
     node.y = FGLApp.container.toLocal(event).y - FGLApp.Drag_Offset_Y;
 
-    // Double check that the left mouse button is indeed pressed.
-    // This may trigger once the user navigates back to the page
-    // after pressing a node and being taken to another page and
-    // the node will continue being dragged when the left mouse
-    // button isnt pressed.
-    if (!((window.document.buttons & 1) === 1)) {
-      FGLApp.onDragEnd();
-      return;
-    }
-
     // Update the positions of everything on the screen for continutity.
     FGLApp.update();
   }
